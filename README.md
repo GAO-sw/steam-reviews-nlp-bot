@@ -1,4 +1,3 @@
-markdown
 # Telegram Bot for Steam Reviews Analysis & Visualization
 
 [![Python CI](https://github.com/GAO-sw/steam-reviews-nlp-bot/actions/workflows/ci.yml/badge.svg)](https://github.com/GAO-sw/steam-reviews-nlp-bot/actions)
