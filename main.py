@@ -1,4 +1,6 @@
-# main.py
+"""
+Main entry point for the Steam Reviews Sentiment Analysis Telegram Bot.
+"""
 import telebot
 from config import BOT_TOKEN
 
@@ -9,8 +11,12 @@ from visualizer import generate_charts
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
+
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
+    """
+    Send a welcome message explaining the bot's functionality to the user.
+    """
     welcome_text = (
         "👋 *Привет! Я бот для анализа отзывов Steam.*\n\n"
         "Отправьте мне числовой идентификатор игры (AppID), и я:\n"
@@ -22,35 +28,49 @@ def send_welcome(message):
     )
     bot.reply_to(message, welcome_text, parse_mode="Markdown")
 
+
 @bot.message_handler(func=lambda message: True)
 def handle_appid(message):
+    """
+    Handle the AppID sent by the user, fetch reviews, analyze them,
+    generate charts, and reply with a formatted report.
+    """
     text = message.text.strip()
-    
+
     if not text.isdigit():
         bot.reply_to(
-            message, 
+            message,
             "⚠️ Пожалуйста, введите корректный числовой AppID игры в Steam (например, 730)."
         )
         return
 
     # Step 1: Get game name
     game_name = get_game_name(text)
-    bot.reply_to(message, f"⌛ Получение и анализ отзывов для игры *{game_name}* (AppID {text})...", parse_mode="Markdown")
-    
+    status_msg = (
+        f"⌛ Получение и анализ отзывов для игры *{game_name}* "
+        f"(AppID {text})..."
+    )
+    bot.reply_to(message, status_msg, parse_mode="Markdown")
+
     try:
         # Step 2: Fetch reviews
         reviews = get_steam_reviews(text)
-        
+
         # Step 3: Run NLP analysis
         sentiment, pos_keywords, neg_keywords = analyze_reviews(reviews)
-        
+
         # Step 4: Generate visual charts
         chart_img = generate_charts(sentiment, pos_keywords, neg_keywords)
-        
+
         # Step 5: Format the Russian text report
+        total_reviews = sum([
+            sentiment['Positive'],
+            sentiment['Neutral'],
+            sentiment['Negative']
+        ])
         report_caption = (
             f"🎮 *Игра:* {game_name} (ID: {text})\n"
-            f"📊 *Всего проанализировано отзывов:* {sum([sentiment['Positive'], sentiment['Neutral'], sentiment['Negative']])}\n\n"
+            f"📊 *Всего проанализировано отзывов:* {total_reviews}\n\n"
             f"🔮 *Тональность (Sentiment):*\n"
             f"• 😊 Положительные: {sentiment['Positive']}\n"
             f"• 😐 Нейтральные: {sentiment['Neutral']}\n"
@@ -73,12 +93,12 @@ def handle_appid(message):
             f"  • Bad (Плохо): {neg_keywords['bad']}\n\n"
             f"🎨 График распределения подготовлен!"
         )
-        
+
         # Send image with description
         bot.send_photo(
-            chat_id=message.chat.id, 
-            photo=chart_img, 
-            caption=report_caption, 
+            chat_id=message.chat.id,
+            photo=chart_img,
+            caption=report_caption,
             parse_mode="Markdown",
             reply_to_message_id=message.message_id
         )
@@ -90,12 +110,13 @@ def handle_appid(message):
             f"❌ *Ошибка при работе со Steam:* {e}",
             parse_mode="Markdown"
         )
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         # Unanticipated errors
         bot.send_message(
             message.chat.id,
             f"🔥 Произошла критическая ошибка в работе бота.\n*(Детали: {e})*"
         )
+
 
 if __name__ == "__main__":
     print("Робот запущен... (Ctrl+C для остановки)")
