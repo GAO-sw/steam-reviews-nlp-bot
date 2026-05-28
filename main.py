@@ -1,6 +1,7 @@
 """
 Main entry point for the Steam Reviews Sentiment Analysis Telegram Bot.
 """
+
 import telebot
 from config import BOT_TOKEN
 
@@ -12,7 +13,7 @@ from visualizer import generate_charts
 bot = telebot.TeleBot(BOT_TOKEN)
 
 
-@bot.message_handler(commands=['start', 'help'])
+@bot.message_handler(commands=["start", "help"])
 def send_welcome(message):
     """
     Send a welcome message explaining the bot's functionality to the user.
@@ -40,15 +41,14 @@ def handle_appid(message):
     if not text.isdigit():
         bot.reply_to(
             message,
-            "⚠️ Пожалуйста, введите корректный числовой AppID игры в Steam (например, 730)."
+            "⚠️ Пожалуйста, введите корректный числовой AppID игры в Steam (например, 730).",
         )
         return
 
     # Step 1: Get game name
     game_name = get_game_name(text)
     status_msg = (
-        f"⌛ Получение и анализ отзывов для игры *{game_name}* "
-        f"(AppID {text})..."
+        f"⌛ Получение и анализ отзывов для игры *{game_name}* " f"(AppID {text})..."
     )
     bot.reply_to(message, status_msg, parse_mode="Markdown")
 
@@ -63,11 +63,9 @@ def handle_appid(message):
         chart_img = generate_charts(sentiment, pos_keywords, neg_keywords)
 
         # Step 5: Format the Russian text report
-        total_reviews = sum([
-            sentiment['Positive'],
-            sentiment['Neutral'],
-            sentiment['Negative']
-        ])
+        total_reviews = sum(
+            [sentiment["Positive"], sentiment["Neutral"], sentiment["Negative"]]
+        )
         report_caption = (
             f"🎮 *Игра:* {game_name} (ID: {text})\n"
             f"📊 *Всего проанализировано отзывов:* {total_reviews}\n\n"
@@ -100,7 +98,7 @@ def handle_appid(message):
             photo=chart_img,
             caption=report_caption,
             parse_mode="Markdown",
-            reply_to_message_id=message.message_id
+            reply_to_message_id=message.message_id,
         )
 
     except SteamError as e:
@@ -108,13 +106,13 @@ def handle_appid(message):
         bot.send_message(
             message.chat.id,
             f"❌ *Ошибка при работе со Steam:* {e}",
-            parse_mode="Markdown"
+            parse_mode="Markdown",
         )
     except Exception as e:  # pylint: disable=broad-exception-caught
         # Unanticipated errors
         bot.send_message(
             message.chat.id,
-            f"🔥 Произошла критическая ошибка в работе бота.\n*(Детали: {e})*"
+            f"🔥 Произошла критическая ошибка в работе бота.\n*(Детали: {e})*",
         )
 
 
