@@ -1,11 +1,12 @@
-# steam_api.py
+# pylint: disable=broad-exception-caught, raise-missing-from
+"""
+Module for interacting with the Steam Web API to fetch game info and reviews.
+"""
 import requests
 
 
 class SteamError(Exception):
     """Base exception for all Steam API related errors"""
-
-    pass
 
 
 def get_game_name(appid):
@@ -19,7 +20,7 @@ def get_game_name(appid):
             data = response.json()
             if data and data.get(str(appid), {}).get("success"):
                 return data[str(appid)]["data"]["name"]
-        return f"AppID {appid}"  # Fallback: return AppID if name cannot be found
+        return f"AppID {appid}"  # Fallback
     except Exception:
         return f"AppID {appid}"
 

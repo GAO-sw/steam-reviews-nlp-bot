@@ -1,9 +1,12 @@
-# visualizer.py
-import matplotlib
+# pylint: disable=wrong-import-position
+"""
+Module for generating sentiment analysis charts using Matplotlib.
+"""
+import io
 
+import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import io
 
 
 def generate_charts(sentiment, pos_keywords, neg_keywords):
@@ -23,7 +26,7 @@ def generate_charts(sentiment, pos_keywords, neg_keywords):
     colors_pie = ["#2ECC71", "#BDC3C7", "#E74C3C"]  # Morandi green, gray, red
 
     # Create donut chart by setting width=0.4
-    wedges, texts, autotexts = ax1.pie(
+    _, texts, autotexts = ax1.pie(
         sizes_pie,
         labels=labels_pie,
         autopct="%1.1f%%",
@@ -78,11 +81,11 @@ def generate_charts(sentiment, pos_keywords, neg_keywords):
     ax2.invert_yaxis()  # Put top keywords on top
 
     # Add count values to the right of the bars
-    for bar in bars:
-        width = bar.get_width()
+    for rect in bars:
+        width = rect.get_width()
         ax2.text(
             width + 0.3,
-            bar.get_y() + bar.get_height() / 2,
+            rect.get_y() + rect.get_height() / 2,
             f"{int(width)}",
             ha="left",
             va="center",

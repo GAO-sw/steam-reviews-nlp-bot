@@ -1,4 +1,6 @@
-# analyzer.py
+"""
+Module for analyzing Steam reviews sentiment and keyword counts using Pandas.
+"""
 import pandas as pd
 from textblob import TextBlob
 
